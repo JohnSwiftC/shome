@@ -1,0 +1,8 @@
+[package]
+name = "shome"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lazyhttp = "2.0.1"
+mdns-sd = "0.13.10"
