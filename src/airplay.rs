@@ -7,7 +7,6 @@ use crate::utils;
 
 pub fn airplay_device_flood(name: &str, amount: usize) {
     let mut threads = Vec::with_capacity(amount);
-
     let mut mac = utils::MacAddr::new_zeroed();
     let name = name.to_string();
     println!("{}", mac.as_string());
@@ -20,7 +19,9 @@ pub fn airplay_device_flood(name: &str, amount: usize) {
     }
 
     for t in threads {
-        t.join();
+        if let Err(_) = t.join() {
+            eprintln!("An AirPlay thread failed to join...");
+        }
     }
 }
 
@@ -58,18 +59,18 @@ fn register_airplay_device(
     mdns.register(airplay_service)?;
     mdns.register(raop_service)?;
 
-    println!(
-        "AirPlay device '{}' registered at {}:{}",
-        device_name, ip, port
-    );
-    println!("Services registered:");
-    println!("  - _airplay._tcp.local");
-    println!("  - _raop._tcp.local");
+    //println!(
+    //    "AirPlay device '{}' registered at {}:{}",
+    //    device_name, ip, port
+    //);
+    //println!("Services registered:");
+    //println!("  - _airplay._tcp.local");
+    //println!("  - _raop._tcp.local");
 
     // Keep services running
     loop {
         std::thread::sleep(Duration::from_secs(30));
-    }
+    } 
 }
 
 fn create_airplay_txt_records(device_name: &str, device_id: &str) -> HashMap<String, String> {

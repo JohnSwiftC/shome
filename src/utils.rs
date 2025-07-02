@@ -14,7 +14,7 @@ impl MacAddr {
     }
 
     pub fn new_zeroed() -> Self {
-        Self { addr: [170; 6] }
+        Self { addr: [20; 6] }
     }
 
     pub fn increment(&mut self) {
