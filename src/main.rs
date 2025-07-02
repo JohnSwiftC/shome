@@ -5,5 +5,5 @@ mod upnp;
 mod utils;
 
 fn main() {
-    airplay_device_flood("gus", 50);
+    airplay_device_flood("a", 2);
 }

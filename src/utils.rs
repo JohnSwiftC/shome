@@ -1,5 +1,6 @@
 use std::os::macos::fs::MetadataExt;
 
+#[derive(Clone)]
 pub struct MacAddr {
     addr: [u8; 6],
 }
@@ -13,7 +14,7 @@ impl MacAddr {
     }
 
     pub fn new_zeroed() -> Self {
-        Self { addr: [0; 6] }
+        Self { addr: [170; 6] }
     }
 
     pub fn increment(&mut self) {
