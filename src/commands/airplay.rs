@@ -1,7 +1,7 @@
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 use std::collections::HashMap;
-use std::time::Duration;
 use std::thread;
+use std::time::Duration;
 
 use crate::utils;
 
@@ -14,7 +14,10 @@ pub fn airplay_device_flood(name: &str, amount: usize) {
         mac.increment();
         let mac_c = mac.clone();
         let name_c = name.clone();
-        let t = thread::spawn(move || {let _ = register_airplay_device(&format!("{}{}", name_c, i), &mac_c, "192.168.4.100", 8000);});
+        let t = thread::spawn(move || {
+            let _ =
+                register_airplay_device(&format!("{}{}", name_c, i), &mac_c, "192.168.4.100", 8000);
+        });
         threads.push(t);
     }
 
@@ -70,7 +73,7 @@ fn register_airplay_device(
     // Keep services running
     loop {
         std::thread::sleep(Duration::from_secs(30));
-    } 
+    }
 }
 
 fn create_airplay_txt_records(device_name: &str, device_id: &str) -> HashMap<String, String> {

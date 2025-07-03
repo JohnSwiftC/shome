@@ -1,16 +1,17 @@
-use crate::airplay::airplay_device_flood;
-
-mod airplay;
-mod upnp;
+mod commands;
 mod utils;
 
 fn main() {
-    airplay_device_flood("Zwduwidwidncnwudg8qjsowndqsw9wdnqud9wqjd", 600);
+    let mut main_router = CommandRouter::new("main");
+    let mut airplay_router = CommandRouter::new("airplay");
+    let mut upnp_router = CommandRouter::new("upnp");
+
+    //airplay_device_flood("Zwduwidwidncnwudg8qjsowndqsw9wdnqud9wqjd", 600);
 }
 
-enum CommandResult<'a> {
-    Success {message: &'a str},
-    Failure {message: &'a str},
+enum CommandResult {
+    Success { message: String },
+    Failure { message: String },
 }
 trait Command {
     fn run(&self, input: &str) -> Result<CommandResult, CommandResult>;
@@ -19,18 +20,35 @@ trait Command {
 }
 
 struct CommandRouter {
-    name: String,
+    name: &'static str,
     commands: Vec<Box<dyn Command>>,
     routers: Vec<CommandRouter>,
 }
 
 impl CommandRouter {
+    fn new(name: &'static str) -> Self {
+        Self {
+            name,
+            commands: Vec::new(),
+            routers: Vec::new(),
+        }
+    }
+
+    fn register<T: Command + 'static>(mut self, command: T) -> Self {
+        self.commands.push(Box::new(command));
+        self
+    }
+
+    fn register_router(mut self, router: CommandRouter) -> Self {
+        self.routers.push(router);
+        self
+    }
 
     fn name(&self) -> &str {
         &self.name
     }
 
-    fn parse(&self,input: &str) -> Result<CommandResult, CommandResult> {
+    fn parse(&self, input: &str) -> Result<CommandResult, CommandResult> {
         let (first, rest) = match input.split_once(" ") {
             Some((first, rest)) => (first, rest),
             None => (input, ""),
@@ -48,6 +66,8 @@ impl CommandRouter {
             }
         }
 
-        Err(CommandResult::Failure { message: "Command does not exist. Use help to see available commands!" })
+        Err(CommandResult::Failure {
+            message: "Command does not exist. Use help to see available commands!".to_owned(),
+        })
     }
 }

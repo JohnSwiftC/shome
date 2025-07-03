@@ -1,5 +1,3 @@
-use std::os::macos::fs::MetadataExt;
-
 #[derive(Clone)]
 pub struct MacAddr {
     addr: [u8; 6],
