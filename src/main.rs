@@ -5,7 +5,9 @@ mod utils;
 
 fn main() {
     let mut main_router = CommandRouter::new("main");
+    main_router.set_info("The main module.");
     let mut airplay_router = CommandRouter::new("airplay");
+    airplay_router.set_info("A module for interacting with and as AirPlay devices.");
     let mut upnp_router = CommandRouter::new("upnp");
 
     let airplay_flood = commands::AirplayFlood {};
@@ -14,7 +16,7 @@ fn main() {
 
     main_router.register_router(airplay_router);
 
-    match main_router.parse("airplay fjfiej") {
+    match main_router.parse("airplay help") {
         Ok(CommandResult::Success { message }) => println!("{}", message),
         Err(CommandResult::Failure { message }) => println!("ERROR: {}", message),
         _ => (),
@@ -64,6 +66,10 @@ impl CommandRouter {
         &self.name
     }
 
+    fn set_info(&mut self, info: &'static str) {
+        self.info = info;
+    }
+
     fn parse(&self, input: &str) -> Result<CommandResult, CommandResult> {
         if input.trim() == "" {
             return Err(CommandResult::Failure {
@@ -74,6 +80,15 @@ impl CommandRouter {
                     self.name
                 ),
             });
+        }
+
+        if input.trim() == "help" {
+            return Ok(CommandResult::Success {
+                message: format!("\
+            {}\n\
+            {}
+                ", self.info, self.generate_help()) 
+            })
         }
 
         let (first, rest) = match input.split_once(" ") {
@@ -96,5 +111,23 @@ impl CommandRouter {
         Err(CommandResult::Failure {
             message: "Command does not exist. Use help to see available commands and modules!".to_owned(),
         })
+    }
+
+    fn generate_help(&self) -> String {
+        let mut ret = String::new();
+
+        ret.push_str("Commands\n\n");
+
+        for c in &self.commands {
+            ret.push_str(&format!("- {}\n", c.name()));
+        }
+
+        ret.push_str("\nModules/Routers\n\n");
+
+        for r in &self.routers {
+            ret.push_str(&format!("- {}\n", r.name()));
+        }
+
+        ret
     }
 }
