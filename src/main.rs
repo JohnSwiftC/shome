@@ -8,32 +8,26 @@ fn main() {
     let mut airplay_router = CommandRouter::new("airplay");
     let mut upnp_router = CommandRouter::new("upnp");
 
-    let airplay_flood = commands::AirplayFlood{};
+    let airplay_flood = commands::AirplayFlood {};
 
     airplay_router.register(airplay_flood);
 
     main_router.register_router(airplay_router);
 
-    match main_router.parse("airplay flood -a 5 -n testmac0") {
+    match main_router.parse("airplay fjfiej") {
         Ok(CommandResult::Success { message }) => println!("{}", message),
-        Err(CommandResult::Failure { message }) => println!("{}", message),
+        Err(CommandResult::Failure { message }) => println!("ERROR: {}", message),
         _ => (),
     }
 
-    loop {
-
-    }
+    loop {}
 
     //airplay_device_flood("Zwduwidwidncnwudg8qjsowndqsw9wdnqud9wqjd", 600);
 }
 
 enum CommandResult {
-    Success {
-        message: String,
-    },
-    Failure {
-        message: String,
-    },
+    Success { message: String },
+    Failure { message: String },
 }
 trait Command {
     fn run(&self, input: &str) -> Result<CommandResult, CommandResult>;
@@ -43,6 +37,7 @@ trait Command {
 
 struct CommandRouter {
     name: &'static str,
+    info: &'static str,
     commands: Vec<Box<dyn Command>>,
     routers: Vec<CommandRouter>,
 }
@@ -51,6 +46,7 @@ impl CommandRouter {
     fn new(name: &'static str) -> Self {
         Self {
             name,
+            info: "No info for this router",
             commands: Vec::new(),
             routers: Vec::new(),
         }
@@ -69,6 +65,17 @@ impl CommandRouter {
     }
 
     fn parse(&self, input: &str) -> Result<CommandResult, CommandResult> {
+        if input.trim() == "" {
+            return Err(CommandResult::Failure {
+                message: format!(
+                    "{} is a command router/module, \
+                    not a command. Append 'help' to your command \
+                    to see commands and sub-modules",
+                    self.name
+                ),
+            });
+        }
+
         let (first, rest) = match input.split_once(" ") {
             Some((first, rest)) => (first, rest),
             None => (input, ""),
@@ -87,7 +94,7 @@ impl CommandRouter {
         }
 
         Err(CommandResult::Failure {
-            message: "Command does not exist. Use help to see available commands!".to_owned(),
+            message: "Command does not exist. Use help to see available commands and modules!".to_owned(),
         })
     }
 }
