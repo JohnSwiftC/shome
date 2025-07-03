@@ -1,9 +1,10 @@
 use crate::{Command, CommandResult};
+use std::thread;
 
 mod airplay;
 mod upnp;
 
-struct AirplayFlood;
+pub struct AirplayFlood;
 impl Command for AirplayFlood {
     fn name(&self) -> &str {
         "flood"
@@ -27,10 +28,12 @@ impl Command for AirplayFlood {
                 "-a" | "--amount" => {
                     if let Some(a) = args.next() {
                         amount = a.parse().map_err(|e| CommandResult::Failure {
-                            message: format!("amount unable to be parsed {}", e),
+                            message: format!("amount unable to be parsed: {}", e),
                         })?;
                     } else {
-                        return Err(CommandResult::Failure { message: "amount flag used but no amount specified".to_owned() })
+                        return Err(CommandResult::Failure {
+                            message: "amount flag used but no amount specified".to_owned(),
+                        });
                     }
                 }
 
@@ -38,7 +41,9 @@ impl Command for AirplayFlood {
                     if let Some(n) = args.next() {
                         name = n.to_owned();
                     } else {
-                        return Err(CommandResult::Failure { message: "name flag used but no name specified".to_owned() })
+                        return Err(CommandResult::Failure {
+                            message: "name flag used but no name specified".to_owned(),
+                        });
                     }
                 }
 
@@ -50,7 +55,9 @@ impl Command for AirplayFlood {
             }
         }
 
-
+        let job = thread::spawn(move || {
+            airplay::airplay_device_flood(&name, amount);
+        });
 
         Ok(CommandResult::Success {
             message: "AirPlay flood started!".to_owned(),

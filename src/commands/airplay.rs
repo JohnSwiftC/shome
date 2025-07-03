@@ -16,7 +16,7 @@ pub fn airplay_device_flood(name: &str, amount: usize) {
         let name_c = name.clone();
         let t = thread::spawn(move || {
             let _ =
-                register_airplay_device(&format!("{}{}", name_c, i), &mac_c, "192.168.4.100", 8000);
+                register_airplay_device(&format!("{}{}", name_c, i), &mac_c, "192.168.1.100", 8000);
         });
         threads.push(t);
     }
