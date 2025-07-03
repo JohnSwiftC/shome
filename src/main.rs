@@ -14,7 +14,7 @@ fn main() {
 
     main_router.register_router(airplay_router);
 
-    match main_router.parse("airplay flood -a 5") {
+    match main_router.parse("airplay flood -a 5 -n testmac0") {
         Ok(CommandResult::Success { message }) => println!("{}", message),
         Err(CommandResult::Failure { message }) => println!("{}", message),
         _ => (),

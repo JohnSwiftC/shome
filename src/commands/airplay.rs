@@ -9,7 +9,7 @@ pub fn airplay_device_flood(name: &str, amount: usize) {
     let mut threads = Vec::with_capacity(amount);
     let mut mac = utils::MacAddr::new_zeroed();
     let name = name.to_string();
-    println!("{}", mac.as_string());
+    //println!("{}", mac.as_string());
     for i in 0..amount {
         mac.increment();
         let mac_c = mac.clone();

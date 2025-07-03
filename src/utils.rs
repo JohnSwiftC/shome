@@ -6,13 +6,13 @@ pub struct MacAddr {
 impl MacAddr {
     pub fn as_string(&self) -> String {
         format!(
-            "{:X?}{:X?}{:X?}{:X?}{:X?}{:X?}",
+            "{:02X?}{:02X?}{:02X?}{:02X?}{:02X?}{:02X?}",
             self.addr[0], self.addr[1], self.addr[2], self.addr[3], self.addr[4], self.addr[5]
         )
     }
 
     pub fn new_zeroed() -> Self {
-        Self { addr: [20; 6] }
+        Self { addr: [0; 6] }
     }
 
     pub fn increment(&mut self) {
