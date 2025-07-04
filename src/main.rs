@@ -4,19 +4,24 @@ mod commands;
 mod utils;
 
 fn main() {
+
+    // Routers
     let mut main_router = CommandRouter::new("main");
     main_router.set_info("The main module.");
+
     let mut airplay_router = CommandRouter::new("airplay");
     airplay_router.set_info("A module for interacting with and as AirPlay devices.");
+
     let mut upnp_router = CommandRouter::new("upnp");
 
+    // Commands
     let airplay_flood = commands::AirplayFlood {};
 
+    // Give ownership in order
     airplay_router.register(airplay_flood);
-
     main_router.register_router(airplay_router);
 
-    match main_router.parse("airplay help") {
+    match main_router.parse("airplay flood -a 400") {
         Ok(CommandResult::Success { message }) => println!("{}", message),
         Err(CommandResult::Failure { message }) => println!("ERROR: {}", message),
         _ => (),
@@ -32,6 +37,16 @@ enum CommandResult {
     Failure { message: String },
 }
 trait Command {
+    fn process(&self, input: &str) -> Result<CommandResult, CommandResult> {
+         match input {
+            "help" => {
+                return Ok(CommandResult::Success { message: self.info().to_owned() })
+            },
+            &_ => (),
+         }
+
+         self.run(input)
+    }
     fn run(&self, input: &str) -> Result<CommandResult, CommandResult>;
     fn info(&self) -> &str;
     fn name(&self) -> &str;
@@ -102,7 +117,7 @@ impl CommandRouter {
 
         for command in &self.commands {
             if command.name() == first {
-                return command.run(rest);
+                return command.process(rest);
             }
         }
 

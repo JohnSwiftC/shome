@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 use std::collections::HashMap;
 use std::thread;
@@ -19,6 +21,8 @@ pub fn airplay_device_flood(name: &str, amount: usize) -> Result<CommandResult, 
             ),
         }
     })?;
+
+    println!("{}", local_ip);
     //println!("{}", mac.as_string());
     for i in 0..amount {
         mac.increment();
@@ -64,7 +68,7 @@ fn register_airplay_device(
         &hostname,
         ip,
         port,
-        create_airplay_txt_records(device_name, device_id),
+        create_airplay_txt_records(device_id),
     )?;
 
     let raop_instance_name = format!("{}@{}", device_id, device_name);
@@ -74,7 +78,7 @@ fn register_airplay_device(
         &hostname,
         ip,
         port,
-        create_raop_txt_records(device_name, device_id),
+        create_raop_txt_records(),
     )?;
 
     // Register both services
@@ -95,7 +99,7 @@ fn register_airplay_device(
     }
 }
 
-fn create_airplay_txt_records(device_name: &str, device_id: &str) -> HashMap<String, String> {
+fn create_airplay_txt_records(device_id: &str) -> HashMap<String, String> {
     let mut records = HashMap::new();
 
     // Essential AirPlay TXT records that iOS looks for
@@ -115,7 +119,7 @@ fn create_airplay_txt_records(device_name: &str, device_id: &str) -> HashMap<Str
     records
 }
 
-fn create_raop_txt_records(device_name: &str, device_id: &str) -> HashMap<String, String> {
+fn create_raop_txt_records() -> HashMap<String, String> {
     let mut records = HashMap::new();
 
     // RAOP (Remote Audio Output Protocol) TXT records
