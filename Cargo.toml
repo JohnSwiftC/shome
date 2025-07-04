@@ -5,4 +5,5 @@ edition = "2021"
 
 [dependencies]
 lazyhttp = "2.0.1"
+local-ip-address = "0.6.5"
 mdns-sd = "0.13.10"

@@ -84,11 +84,15 @@ impl CommandRouter {
 
         if input.trim() == "help" {
             return Ok(CommandResult::Success {
-                message: format!("\
+                message: format!(
+                    "\
             {}\n\
             {}
-                ", self.info, self.generate_help()) 
-            })
+                ",
+                    self.info,
+                    self.generate_help()
+                ),
+            });
         }
 
         let (first, rest) = match input.split_once(" ") {
@@ -109,7 +113,8 @@ impl CommandRouter {
         }
 
         Err(CommandResult::Failure {
-            message: "Command does not exist. Use help to see available commands and modules!".to_owned(),
+            message: "Command does not exist. Use help to see available commands and modules!"
+                .to_owned(),
         })
     }
 
