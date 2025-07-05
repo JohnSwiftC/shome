@@ -5,20 +5,15 @@ use std::time::Duration;
 
 use local_ip_address::local_ip;
 
-use crate::{utils, CommandResult, Command};
 use super::register_airplay_device;
+use crate::{utils, Command, CommandResult};
 
 pub fn airplay_device_flood(name: &str, amount: usize) -> Result<CommandResult, CommandResult> {
     let mut threads = Vec::with_capacity(amount);
     let mut mac = utils::MacAddr::new_zeroed();
     let name = name.to_string();
-    let local_ip = local_ip().map_err(|e| {
-        CommandResult::Failure {
-            message: format!(
-                "local machine ip address could not be determined: {}",
-                e
-            ),
-        }
+    let local_ip = local_ip().map_err(|e| CommandResult::Failure {
+        message: format!("local machine ip address could not be determined: {}", e),
     })?;
 
     //println!("{}", local_ip);
@@ -31,10 +26,7 @@ pub fn airplay_device_flood(name: &str, amount: usize) -> Result<CommandResult, 
             let _ = register_airplay_device(
                 &format!("{}{}", name_c, i),
                 &mac_c,
-                &format!(
-                    "{}",
-                    local_ip,
-                ),
+                &format!("{}", local_ip,),
                 8000,
             );
         });
@@ -47,7 +39,9 @@ pub fn airplay_device_flood(name: &str, amount: usize) -> Result<CommandResult, 
         }
     }
 
-    Ok(CommandResult::Success { message: "job killed".to_owned() })
+    Ok(CommandResult::Success {
+        message: "job killed".to_owned(),
+    })
 }
 
 pub struct AirplayFlood;

@@ -1,5 +1,5 @@
-use std::thread;
 use std::sync::mpsc;
+use std::thread;
 
 pub mod airplay;
 pub mod upnp;
@@ -10,14 +10,16 @@ pub enum CommandResult {
 }
 pub trait Command {
     fn process(&self, input: &str) -> Result<CommandResult, CommandResult> {
-         match input {
+        match input {
             "help" => {
-                return Ok(CommandResult::Success { message: self.info().to_owned() })
-            },
+                return Ok(CommandResult::Success {
+                    message: self.info().to_owned(),
+                })
+            }
             &_ => (),
-         }
+        }
 
-         self.run(input)
+        self.run(input)
     }
     fn run(&self, input: &str) -> Result<CommandResult, CommandResult>;
     fn info(&self) -> &str;
@@ -97,7 +99,7 @@ impl CommandRouter {
 
         for router in &self.routers {
             if router.name() == first {
-               return router.parse(rest);
+                return router.parse(rest);
             }
         }
 
@@ -134,11 +136,10 @@ impl CommandRouter {
     }
 }
 
-
 use std::collections::HashMap;
 /// The JobManager keeps tracks of mpsc channels used to control threads started
 /// as a result of commands, particularly services that do not normally end.
-/// It is the command's responsibilty to propogate a sender 
+/// It is the command's responsibilty to propogate a sender
 struct JobManager {
-    jobs: HashMap<String, mpsc::Sender<u8>>
+    jobs: HashMap<String, mpsc::Sender<u8>>,
 }
