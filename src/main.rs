@@ -1,5 +1,5 @@
 use std::thread;
-use std::io::{stdin, stdout, Read, Write};
+use std::io::{stdin, stdout, Write};
 
 mod commands;
 mod utils;
