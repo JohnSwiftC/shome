@@ -1,4 +1,5 @@
 use std::thread;
+use std::io::{stdin, stdout, Read, Write};
 
 mod commands;
 mod utils;
@@ -21,13 +22,23 @@ fn main() {
     airplay_router.register(airplay_flood);
     main_router.register_router(airplay_router);
 
-    match main_router.parse("airplay flood -a 400") {
-        Ok(CommandResult::Success { message }) => println!("{}", message),
-        Err(CommandResult::Failure { message }) => println!("ERROR: {}", message),
-        _ => (),
-    }
+    // Input Loop
+    let mut stdout = stdout();
+    let mut stdin = stdin();
+    let mut line = String::new();
+    loop {
+        stdout.write_all("shome > ".as_bytes()).expect("failed to write to stdout, panic now");
+        stdout.flush().expect("failed to flush stdout, panic now");
+        stdin.read_line(&mut line).expect("failed to read from stdin, panic now");
 
-    loop {}
+        match main_router.parse(&line) {
+            Ok(CommandResult::Success { message }) => println!("{}", message),
+            Err(CommandResult::Failure { message }) => println!("ERROR: {}", message),
+            _ => (),
+        }
+
+        line = String::new();
+    }
 
     //airplay_device_flood("Zwduwidwidncnwudg8qjsowndqsw9wdnqud9wqjd", 600);
 }
@@ -86,18 +97,20 @@ impl CommandRouter {
     }
 
     fn parse(&self, input: &str) -> Result<CommandResult, CommandResult> {
-        if input.trim() == "" {
+        let input = input.trim();
+
+        if input == "" {
             return Err(CommandResult::Failure {
                 message: format!(
                     "{} is a command router/module, \
-                    not a command. Append 'help' to your command \
-                    to see commands and sub-modules",
+                     not a command. Append 'help' to your command \
+                     to see commands and sub-modules",
                     self.name
                 ),
             });
         }
 
-        if input.trim() == "help" {
+        if input == "help" {
             return Ok(CommandResult::Success {
                 message: format!(
                     "\
@@ -123,7 +136,7 @@ impl CommandRouter {
 
         for router in &self.routers {
             if router.name() == first {
-                return router.parse(rest);
+               return router.parse(rest);
             }
         }
 
@@ -136,13 +149,21 @@ impl CommandRouter {
     fn generate_help(&self) -> String {
         let mut ret = String::new();
 
-        ret.push_str("Commands\n\n");
+        ret.push_str("Commands\n");
+
+        if self.commands.len() == 0 {
+            ret.push_str("There are no commands in this module.\n")
+        }
 
         for c in &self.commands {
             ret.push_str(&format!("- {}\n", c.name()));
         }
 
-        ret.push_str("\nModules/Routers\n\n");
+        ret.push_str("Modules/Routers\n");
+
+        if self.routers.len() == 0 {
+            ret.push_str("There are no submodules in this module.\n");
+        }
 
         for r in &self.routers {
             ret.push_str(&format!("- {}\n", r.name()));
