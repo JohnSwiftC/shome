@@ -1,7 +1,4 @@
-use mdns_sd::{ServiceDaemon, ServiceInfo};
-use std::collections::HashMap;
 use std::thread;
-use std::time::Duration;
 
 use local_ip_address::local_ip;
 
