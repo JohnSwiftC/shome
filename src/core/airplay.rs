@@ -7,49 +7,26 @@ use std::time::Duration;
 
 use local_ip_address::local_ip;
 
-use crate::{utils, CommandResult};
+use crate::core::airplay::flood::AirplayFlood;
+use crate::{utils, CommandResult, CommandRouter};
 
-pub fn airplay_device_flood(name: &str, amount: usize) -> Result<CommandResult, CommandResult> {
-    let mut threads = Vec::with_capacity(amount);
-    let mut mac = utils::MacAddr::new_zeroed();
-    let name = name.to_string();
-    let local_ip = local_ip().map_err(|e| {
-        CommandResult::Failure {
-            message: format!(
-                "local machine ip address could not be determined: {}",
-                e
-            ),
-        }
-    })?;
+mod flood;
 
-    //println!("{}", local_ip);
-    //println!("{}", mac.as_string());
-    for i in 0..amount {
-        mac.increment();
-        let mac_c = mac.clone();
-        let name_c = name.clone();
-        let t = thread::spawn(move || {
-            let _ = register_airplay_device(
-                &format!("{}{}", name_c, i),
-                &mac_c,
-                &format!(
-                    "{}",
-                    local_ip,
-                ),
-                8000,
-            );
-        });
-        threads.push(t);
-    }
+// The game plan for modules is to create a function for each module router that
+// creates the router with all the submodules and commands pre-loaded
+// this stops the bottom-up building in main
+pub fn router() -> CommandRouter {
+    let mut airplay_router = CommandRouter::new("airplay");
+    airplay_router.set_info("A module for interacting with and as AirPlay devices.");
 
-    for t in threads {
-        if let Err(_) = t.join() {
-            eprintln!("An AirPlay thread failed to join...");
-        }
-    }
+    // register commands and submodules
 
-    Ok(CommandResult::Success { message: "job killed".to_owned() })
+    airplay_router.register(flood::AirplayFlood {});
+
+    airplay_router
 }
+
+// The higher module holds functions that are useful for creating submodules and commands within that module
 
 fn register_airplay_device(
     device_name: &str,
