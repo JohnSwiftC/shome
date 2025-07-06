@@ -66,8 +66,9 @@ impl CommandRouter {
             return Err(CommandResult::Failure {
                 message: format!(
                     "{} is a command router/module, \
-                     not a command. Append 'help' to your command \
+                     not a command. Use '{} help' \
                      to see commands and sub-modules",
+                    self.name,
                     self.name
                 ),
             });
