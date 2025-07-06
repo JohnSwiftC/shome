@@ -115,7 +115,7 @@ impl CommandRouter {
         ret.push_str("Commands\n");
 
         if self.commands.len() == 0 {
-            ret.push_str("There are no commands in this module.\n")
+            ret.push_str("- There are no commands in this module.\n")
         }
 
         for c in &self.commands {
@@ -125,7 +125,7 @@ impl CommandRouter {
         ret.push_str("Modules/Routers\n");
 
         if self.routers.len() == 0 {
-            ret.push_str("There are no submodules in this module.\n");
+            ret.push_str("- There are no submodules in this module.\n");
         }
 
         for r in &self.routers {
