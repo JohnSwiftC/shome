@@ -48,9 +48,12 @@ impl Command for AirplayFlood {
     }
 
     fn info(&self) -> &str {
-        "Used to create a large amount of fake AirPlay devices for several\
-         different purposes, namely a DoS on specific devices, network testing,\
-          and fun"
+        "Used to create a large amount of fake AirPlay devices for several \
+        different purposes, namely a DoS on specific devices, network testing, \
+        and fun.\n\
+        Flags:\n\
+        -a or --amount <int> : amount of devices being created (default: 10)\n\
+        -n or --name <string> : name of devices (default: airplay)"
     }
 
     fn run(&self, input: &str) -> Result<CommandResult, CommandResult> {
