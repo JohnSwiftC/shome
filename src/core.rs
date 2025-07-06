@@ -76,10 +76,7 @@ impl CommandRouter {
         if input == "help" {
             return Ok(CommandResult::Success {
                 message: format!(
-                    "\
-            {}\n\
-            {}
-                ",
+                    "{}\n{}",
                     self.info,
                     self.generate_help()
                 ),
