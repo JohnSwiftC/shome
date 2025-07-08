@@ -5,6 +5,7 @@ use std::io::Write;
 use std::net::{TcpListener, TcpStream, UdpSocket};
 use std::thread;
 
+#[allow(dead_code)]
 fn fake_broadcast(service_desc: &str) {
     let udpsocket = UdpSocket::bind("0.0.0.0:1900").unwrap();
     let listener = TcpListener::bind("0.0.0.0:80").unwrap();
@@ -79,6 +80,7 @@ fn send_chunked_response(stream: &mut TcpStream, data: &[u8]) -> std::io::Result
     Ok(())
 }
 
+#[allow(dead_code)]
 fn read_ssdp() {
     let socket = UdpSocket::bind("0.0.0.0:1900").expect("Failed to open UDP socket");
     loop {

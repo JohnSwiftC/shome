@@ -3,8 +3,8 @@ pub mod airplay;
 pub mod upnp;
 
 pub enum CommandResult {
-    Success { message: String},
-    SuccessWithJob {message: String, job: Job},
+    Success { message: String },
+    SuccessWithJob { message: String, job: Job },
     Failure { message: String },
 }
 pub trait Command {
@@ -67,19 +67,14 @@ impl CommandRouter {
                     "{} is a command router/module, \
                      not a command. Use '{} help' \
                      to see commands and sub-modules",
-                    self.name,
-                    self.name
+                    self.name, self.name
                 ),
             });
         }
 
         if input == "help" {
             return Ok(CommandResult::Success {
-                message: format!(
-                    "{}\n{}",
-                    self.info,
-                    self.generate_help()
-                ),
+                message: format!("{}\n{}", self.info, self.generate_help()),
             });
         }
 
@@ -137,14 +132,12 @@ impl CommandRouter {
 /// as a result of commands, particularly services that do not normally end.
 /// It is the command's responsibilty to propogate a sender
 pub struct JobManager {
-    jobs: Vec<Job>
+    jobs: Vec<Job>,
 }
 
 impl JobManager {
     pub fn new() -> Self {
-        Self {
-            jobs: Vec::new(),
-        }
+        Self { jobs: Vec::new() }
     }
 
     pub fn insert(&mut self, job: Job) {
@@ -163,16 +156,23 @@ impl JobManager {
 
     pub fn kill(&mut self, index: usize) -> Result<CommandResult, CommandResult> {
         if index >= self.jobs.len() {
-            return Err(CommandResult::Failure { message: format!("there is no job at index {}", index) });
+            return Err(CommandResult::Failure {
+                message: format!("there is no job at index {}", index),
+            });
         }
 
-        self.jobs[index].sender.send(()).map_err(|e| {
-            CommandResult::Failure { message: format!("error trying to kill job: {}", e)}
-        })?;
+        self.jobs[index]
+            .sender
+            .send(())
+            .map_err(|e| CommandResult::Failure {
+                message: format!("error trying to kill job: {}", e),
+            })?;
 
         self.jobs.remove(index);
 
-        Ok(CommandResult::Success { message: format!("job at index {} killed", index) })
+        Ok(CommandResult::Success {
+            message: format!("job at index {} killed", index),
+        })
     }
 }
 

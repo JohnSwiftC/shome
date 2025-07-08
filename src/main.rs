@@ -1,5 +1,4 @@
 use std::io::{stdin, stdout, Write};
-use std::sync::mpsc;
 
 mod core;
 mod utils;
@@ -24,7 +23,7 @@ fn main() {
     // Input Loop
     let mut stdout = stdout();
     let stdin = stdin();
-    let mut line = String::new();
+    let mut line: String;
     loop {
         line = String::new();
         stdout
@@ -47,9 +46,11 @@ fn main() {
         match first.trim() {
             "kill" => {
                 if rest.trim() == "help" {
-                    println!("Used to kill a currently running job\n\
+                    println!(
+                        "Used to kill a currently running job\n\
                     run 'list jobs' to get the indexes of currently running jobs\n\
-                    Usage:\nkill <index>");
+                    Usage:\nkill <index>"
+                    );
                     continue;
                 }
 
@@ -58,7 +59,7 @@ fn main() {
                     Err(_) => {
                         println!("ERROR: kill takes a non-negative integer as an argument");
                         continue;
-                    },
+                    }
                 };
 
                 match job_manager.kill(index) {
@@ -73,10 +74,12 @@ fn main() {
             "list" => {
                 match rest.trim() {
                     "jobs" => println!("{}", job_manager.list_current_jobs()),
-                    "" | "help" => println!("Shows specific lists\n\
+                    "" | "help" => println!(
+                        "Shows specific lists\n\
                     Usage: list <list>\n\
                     Possible lists:\n\
-                    - jobs"),
+                    - jobs"
+                    ),
                     _ => eprintln!("{} is not a valid item to list", rest.trim()),
                 }
 
@@ -91,11 +94,10 @@ fn main() {
             Ok(CommandResult::SuccessWithJob { message, job }) => {
                 println!("{}", message);
                 job_manager.insert(job);
-            },
+            }
             Err(CommandResult::Failure { message }) => eprintln!("ERROR: {}", message),
             _ => (),
         }
-
     }
 }
 
@@ -104,19 +106,31 @@ fn main() {
 struct KillDummy {}
 impl Command for KillDummy {
     fn run(&self, _input: &str) -> Result<CommandResult, CommandResult> {
-        Err(CommandResult::Failure { message: "internal error, kill should not be ran with a router".to_owned() })
+        Err(CommandResult::Failure {
+            message: "internal error, kill should not be ran with a router".to_owned(),
+        })
     }
 
-    fn info(&self) -> &str { "" }
-    fn name(&self) -> &str { "kill" }
+    fn info(&self) -> &str {
+        ""
+    }
+    fn name(&self) -> &str {
+        "kill"
+    }
 }
 
 struct ListDummy {}
 impl Command for ListDummy {
     fn run(&self, _input: &str) -> Result<CommandResult, CommandResult> {
-        Err(CommandResult::Failure { message: "internal error, kill should not be ran with a router".to_owned() })
+        Err(CommandResult::Failure {
+            message: "internal error, kill should not be ran with a router".to_owned(),
+        })
     }
 
-    fn info(&self) -> &str { "" }
-    fn name(&self) -> &str { "list" }
+    fn info(&self) -> &str {
+        ""
+    }
+    fn name(&self) -> &str {
+        "list"
+    }
 }

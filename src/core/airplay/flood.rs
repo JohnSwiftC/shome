@@ -1,5 +1,5 @@
-use std::thread;
 use std::sync::{mpsc, Arc, Mutex};
+use std::thread;
 use std::time::Duration;
 
 use local_ip_address::local_ip;
@@ -7,7 +7,11 @@ use local_ip_address::local_ip;
 use super::register_airplay_device;
 use crate::{core::Job, utils, Command, CommandResult};
 
-pub fn airplay_device_flood(name: &str, amount: usize, kill_channel: mpsc::Receiver<()>) -> Result<CommandResult, CommandResult> {
+pub fn airplay_device_flood(
+    name: &str,
+    amount: usize,
+    kill_channel: mpsc::Receiver<()>,
+) -> Result<CommandResult, CommandResult> {
     let mut threads = Vec::with_capacity(amount);
     let mut mac = utils::MacAddr::new_zeroed();
     let name = name.to_string();
@@ -25,26 +29,24 @@ pub fn airplay_device_flood(name: &str, amount: usize, kill_channel: mpsc::Recei
         let mac_c = mac.clone();
         let name_c = name.clone();
         let kb_arc_clone = Arc::clone(&kb_arc);
-        
-        let t = thread::spawn(move || {
-            loop {
-                let _ = register_airplay_device(
-                    &format!("{}{}", name_c, i),
-                    &mac_c,
-                    &format!("{}", local_ip,),
-                    8000,
-                );
 
-                {
-                    let lock = kb_arc_clone.lock().unwrap();
-                    if *lock == true {
-                        drop(lock);
-                        break;
-                    }
+        let t = thread::spawn(move || loop {
+            let _ = register_airplay_device(
+                &format!("{}{}", name_c, i),
+                &mac_c,
+                &format!("{}", local_ip,),
+                8000,
+            );
+
+            {
+                let lock = kb_arc_clone.lock().unwrap();
+                if *lock == true {
+                    drop(lock);
+                    break;
                 }
-
-                thread::sleep(Duration::from_secs(20));
             }
+
+            thread::sleep(Duration::from_secs(20));
         });
         threads.push(t);
     }
@@ -135,7 +137,7 @@ impl Command for AirplayFlood {
         });
 
         Ok(CommandResult::SuccessWithJob {
-            message: "AirPlay flood started!".to_owned(),
+            message: "AirPlay flood job created!".to_owned(),
             job: Job {
                 name: "airplay-flood".to_owned(),
                 sender: sender,

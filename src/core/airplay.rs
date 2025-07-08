@@ -2,7 +2,6 @@ use crate::{utils, CommandRouter};
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 use std::collections::HashMap;
 use std::thread;
-use std::time::Duration;
 
 mod flood;
 
@@ -114,6 +113,7 @@ fn create_raop_txt_records() -> HashMap<String, String> {
 use std::io::{Read, Write};
 use std::net::TcpListener;
 
+#[allow(dead_code)]
 fn start_airplay_http_server(port: u16) {
     let listener = TcpListener::bind(format!("0.0.0.0:{}", port)).unwrap();
     println!("AirPlay HTTP server listening on port {}", port);
