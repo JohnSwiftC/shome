@@ -1,11 +1,9 @@
 use std::sync::mpsc;
-use std::thread;
-
 pub mod airplay;
 pub mod upnp;
 
 pub enum CommandResult {
-    Success { message: String },
+    Success { message: String},
     Failure { message: String },
 }
 pub trait Command {
@@ -134,10 +132,42 @@ impl CommandRouter {
     }
 }
 
-use std::collections::HashMap;
 /// The JobManager keeps tracks of mpsc channels used to control threads started
 /// as a result of commands, particularly services that do not normally end.
 /// It is the command's responsibilty to propogate a sender
-struct JobManager {
-    jobs: HashMap<String, mpsc::Sender<u8>>,
+pub struct JobManager {
+    jobs: Vec<Job>
+}
+
+impl JobManager {
+    pub fn insert(&mut self, job: Job) {
+        self.jobs.push(job);
+    }
+
+    pub fn list_current_jobs(&self) -> String {
+        let mut ret = String::new();
+
+        for (i, j) in self.jobs.iter().enumerate() {
+            ret.push_str(&format!("({}) > {}", i, j.name))
+        }
+
+        ret
+    }
+
+    pub fn kill(&self, index: usize) -> Result<CommandResult, CommandResult> {
+        if index >= self.jobs.len() {
+            return Err(CommandResult::Failure { message: format!("there is no job at index {}", index) });
+        }
+
+        self.jobs[index].sender.send(()).map_err(|e| {
+            CommandResult::Failure { message: format!("error trying to kill job: {}", e)}
+        })?;
+
+        Ok(CommandResult::Success { message: format!("job at index {} killed", index) })
+    }
+}
+
+pub struct Job {
+    name: String,
+    sender: mpsc::Sender<()>,
 }
