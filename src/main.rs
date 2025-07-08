@@ -4,7 +4,7 @@ use std::sync::mpsc;
 mod core;
 mod utils;
 
-use core::{Command, CommandResult, CommandRouter};
+use core::{Command, CommandResult, CommandRouter, JobManager};
 
 fn main() {
     // Routers
@@ -15,11 +15,16 @@ fn main() {
 
     main_router.register_router(core::airplay::router());
 
+    // Jobs
+
+    let mut job_manager = JobManager::new();
+
     // Input Loop
     let mut stdout = stdout();
     let stdin = stdin();
     let mut line = String::new();
     loop {
+        line = String::new();
         stdout
             .write_all("shome > ".as_bytes())
             .expect("failed to write to stdout, panic now");
@@ -28,15 +33,65 @@ fn main() {
             .read_line(&mut line)
             .expect("failed to read from stdin, panic now");
 
-        match main_router.parse(&line) {
-            Ok(CommandResult::Success { message }) => println!("{}", message),
-            Ok(CommandResult::SuccessWithJob { message, job }) => {
+        // Special commands that interact with structures in main
+        // i dont think a framework for this is important because of the very
+        // specific things that these commands do and that functionality
+        // shouldnt be needed for normal commands
+        let (first, rest) = match line.split_once(" ") {
+            Some((first, rest)) => (first, rest),
+            None => (line.as_str(), ""),
+        };
 
-            },
-            Err(CommandResult::Failure { message }) => println!("ERROR: {}", message),
+        match first.trim() {
+            "kill" => {
+                if rest.trim() == "help" {
+                    println!("Used to kill a currently running job\n\
+                    run 'list jobs' to get the indexes of currently running jobs\n\
+                    Usage:\nkill <index>")
+                }
+
+                let index = match rest.parse::<usize>() {
+                    Ok(i) => i,
+                    Err(_) => {
+                        println!("ERROR: kill takes a non-negative integer as an argument");
+                        continue;
+                    },
+                };
+
+                match job_manager.kill(index) {
+                    Ok(CommandResult::Success { message }) => println!("{}", message),
+                    Err(CommandResult::Failure { message }) => eprintln!("ERROR: {}", message),
+                    _ => (),
+                }
+
+                continue;
+            }
+
+            "list" => {
+                match rest.trim() {
+                    "jobs" => println!("{}", job_manager.list_current_jobs()),
+                    "" => println!("Shows specific lists\n\
+                    Usage: list <list>\n\
+                    Possible lists:\n\
+                    - jobs"),
+                    _ => eprintln!("{} is not a valid item to list", rest.trim()),
+                }
+
+                continue;
+            }
+
             _ => (),
         }
 
-        line = String::new();
+        match main_router.parse(&line) {
+            Ok(CommandResult::Success { message }) => println!("{}", message),
+            Ok(CommandResult::SuccessWithJob { message, job }) => {
+                println!("{}", message);
+                job_manager.insert(job);
+            },
+            Err(CommandResult::Failure { message }) => eprintln!("ERROR: {}", message),
+            _ => (),
+        }
+
     }
 }

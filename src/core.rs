@@ -4,7 +4,7 @@ pub mod upnp;
 
 pub enum CommandResult {
     Success { message: String},
-    SuccessWithJob {message: String, job: mpsc::Sender<()>},
+    SuccessWithJob {message: String, job: Job},
     Failure { message: String },
 }
 pub trait Command {
@@ -141,6 +141,12 @@ pub struct JobManager {
 }
 
 impl JobManager {
+    pub fn new() -> Self {
+        Self {
+            jobs: Vec::new(),
+        }
+    }
+
     pub fn insert(&mut self, job: Job) {
         self.jobs.push(job);
     }
@@ -155,7 +161,7 @@ impl JobManager {
         ret
     }
 
-    pub fn kill(&self, index: usize) -> Result<CommandResult, CommandResult> {
+    pub fn kill(&mut self, index: usize) -> Result<CommandResult, CommandResult> {
         if index >= self.jobs.len() {
             return Err(CommandResult::Failure { message: format!("there is no job at index {}", index) });
         }
@@ -163,6 +169,8 @@ impl JobManager {
         self.jobs[index].sender.send(()).map_err(|e| {
             CommandResult::Failure { message: format!("error trying to kill job: {}", e)}
         })?;
+
+        self.jobs.remove(index);
 
         Ok(CommandResult::Success { message: format!("job at index {} killed", index) })
     }
