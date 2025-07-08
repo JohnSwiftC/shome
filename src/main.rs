@@ -31,7 +31,6 @@ fn main() {
         match main_router.parse(&line) {
             Ok(CommandResult::Success { message }) => println!("{}", message),
             Err(CommandResult::Failure { message }) => println!("ERROR: {}", message),
-            _ => (),
         }
 
         line = String::new();

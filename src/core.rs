@@ -4,6 +4,7 @@ pub mod upnp;
 
 pub enum CommandResult {
     Success { message: String},
+    SuccessWithJob {message: String, job: mpsc::Sender<()>},
     Failure { message: String },
 }
 pub trait Command {
