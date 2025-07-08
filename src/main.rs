@@ -14,6 +14,8 @@ fn main() {
     // Register main commands and submodules
 
     main_router.register_router(core::airplay::router());
+    main_router.register(KillDummy {});
+    main_router.register(ListDummy {});
 
     // Jobs
 
@@ -47,7 +49,8 @@ fn main() {
                 if rest.trim() == "help" {
                     println!("Used to kill a currently running job\n\
                     run 'list jobs' to get the indexes of currently running jobs\n\
-                    Usage:\nkill <index>")
+                    Usage:\nkill <index>");
+                    continue;
                 }
 
                 let index = match rest.parse::<usize>() {
@@ -70,7 +73,7 @@ fn main() {
             "list" => {
                 match rest.trim() {
                     "jobs" => println!("{}", job_manager.list_current_jobs()),
-                    "" => println!("Shows specific lists\n\
+                    "" | "help" => println!("Shows specific lists\n\
                     Usage: list <list>\n\
                     Possible lists:\n\
                     - jobs"),
@@ -94,4 +97,26 @@ fn main() {
         }
 
     }
+}
+
+// These two commands do nothing except ensure that the names show up in the main router's
+// help menu. These are written manually and work outside the main router
+struct KillDummy {}
+impl Command for KillDummy {
+    fn run(&self, _input: &str) -> Result<CommandResult, CommandResult> {
+        Err(CommandResult::Failure { message: "internal error, kill should not be ran with a router".to_owned() })
+    }
+
+    fn info(&self) -> &str { "" }
+    fn name(&self) -> &str { "kill" }
+}
+
+struct ListDummy {}
+impl Command for ListDummy {
+    fn run(&self, _input: &str) -> Result<CommandResult, CommandResult> {
+        Err(CommandResult::Failure { message: "internal error, kill should not be ran with a router".to_owned() })
+    }
+
+    fn info(&self) -> &str { "" }
+    fn name(&self) -> &str { "list" }
 }
