@@ -63,11 +63,7 @@ fn register_airplay_device(
     //println!("Services registered:");
     //println!("  - _airplay._tcp.local");
     //println!("  - _raop._tcp.local");
-
-    // Keep services running
-    loop {
-        std::thread::sleep(Duration::from_secs(30));
-    }
+    Ok(())
 }
 
 fn create_airplay_txt_records(device_id: &str) -> HashMap<String, String> {

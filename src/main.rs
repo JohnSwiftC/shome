@@ -53,7 +53,7 @@ fn main() {
                     continue;
                 }
 
-                let index = match rest.parse::<usize>() {
+                let index = match rest.trim().parse::<usize>() {
                     Ok(i) => i,
                     Err(_) => {
                         println!("ERROR: kill takes a non-negative integer as an argument");
