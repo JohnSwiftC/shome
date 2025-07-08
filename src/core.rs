@@ -168,10 +168,11 @@ impl JobManager {
                 message: format!("error trying to kill job: {}", e),
             })?;
 
+        let job_name = self.jobs[index].name.clone();
         self.jobs.remove(index);
 
         Ok(CommandResult::Success {
-            message: format!("job at index {} killed", index),
+            message: format!("job '{}' at index {} killed", job_name, index),
         })
     }
 }
