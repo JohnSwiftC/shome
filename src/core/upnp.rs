@@ -4,8 +4,20 @@ use lazyhttp;
 use std::io::Write;
 use std::net::{TcpListener, TcpStream, UdpSocket};
 use std::thread;
+use crate::CommandRouter;
 
 mod search;
+
+pub fn router() -> CommandRouter {
+    let mut upnp_router = CommandRouter::new("upnp");
+    upnp_router.set_info("A module for interacting with and as UPnP devices.");
+
+    // register commands and submodules
+
+    upnp_router.register(search::UPnPSearch {});
+    
+    upnp_router
+}
 
 #[allow(dead_code)]
 fn fake_broadcast(service_desc: &str) {

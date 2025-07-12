@@ -13,6 +13,7 @@ fn main() {
     // Register main commands and submodules
 
     main_router.register_router(core::airplay::router());
+    main_router.register_router(core::upnp::router());
     main_router.register(KillDummy {});
     main_router.register(ListDummy {});
 
