@@ -29,8 +29,8 @@ impl MacAddr {
     }
 }
 
-use std::io::ErrorKind;
 use std::fs::File;
+use std::io::ErrorKind;
 pub fn create_log_file(name: &str) -> Result<File, CommandResult> {
     let mut log_iter = 1;
     loop {
@@ -43,7 +43,9 @@ pub fn create_log_file(name: &str) -> Result<File, CommandResult> {
                     log_iter += 1;
                     continue;
                 } else {
-                    return Err(CommandResult::Failure { message: format!("failed to create log file: {}", e) });
+                    return Err(CommandResult::Failure {
+                        message: format!("failed to create log file: {}", e),
+                    });
                 }
             }
         }

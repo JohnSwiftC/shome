@@ -1,7 +1,7 @@
-use std::sync::{mpsc};
-use std::thread;
 use std::fs::File;
 use std::io::Write;
+use std::sync::mpsc;
+use std::thread;
 
 use std::net::UdpSocket;
 
@@ -21,7 +21,6 @@ fn read_ssdp_to_log(file: &mut File, socket: &mut UdpSocket) {
     if let Err(e) = write!(file, "Packet from {}\n{}", sender, bufstr) {
         eprintln!("ERROR: failed to write to log file, consider killing upnp-search job");
     }
-
 }
 
 pub struct UPnPSearch {}
@@ -48,23 +47,25 @@ impl Command for UPnPSearch {
                     if let Some(n) = args.next() {
                         log_file_name = n.trim();
                     } else {
-                        return Err(CommandResult::Failure { message: "output flag used but no value given".to_owned() });
+                        return Err(CommandResult::Failure {
+                            message: "output flag used but no value given".to_owned(),
+                        });
                     }
                 }
 
                 &_ => {
-                    return Err(CommandResult::Failure { 
+                    return Err(CommandResult::Failure {
                         message: "unrecognized flag used".to_owned(),
                     });
                 }
-
             }
         }
 
         log_file = create_log_file(log_file_name)?;
 
-        let mut socket = UdpSocket::bind("0.0.0.0:1900").map_err(|e| {
-            CommandResult::Failure { message: "udp socket already open at port 1900, consider killing related upnp jobs".to_owned() }
+        let mut socket = UdpSocket::bind("0.0.0.0:1900").map_err(|e| CommandResult::Failure {
+            message: "udp socket already open at port 1900, consider killing related upnp jobs"
+                .to_owned(),
         })?;
 
         let (sender, receiver) = mpsc::channel();
@@ -77,10 +78,12 @@ impl Command for UPnPSearch {
             }
         });
 
-        Ok(CommandResult::SuccessWithJob { message: "UPnP search job created!".to_owned(),
-        job: Job {
-            name: "upnp-search".to_owned(),
-            sender: sender,
-        }, })
+        Ok(CommandResult::SuccessWithJob {
+            message: "UPnP search job created!".to_owned(),
+            job: Job {
+                name: "upnp-search".to_owned(),
+                sender: sender,
+            },
+        })
     }
 }

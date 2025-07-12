@@ -1,10 +1,10 @@
 // THIS WHOLE THING IS NOT INTEGRATED YET. IGNORE IT BEING HERE
 
+use crate::CommandRouter;
 use lazyhttp;
 use std::io::Write;
 use std::net::{TcpListener, TcpStream, UdpSocket};
 use std::thread;
-use crate::CommandRouter;
 
 mod search;
 
@@ -15,7 +15,7 @@ pub fn router() -> CommandRouter {
     // register commands and submodules
 
     upnp_router.register(search::UPnPSearch {});
-    
+
     upnp_router
 }
 
