@@ -1,3 +1,5 @@
+use crate::CommandResult;
+
 #[derive(Clone)]
 pub struct MacAddr {
     addr: [u8; 6],
@@ -23,6 +25,27 @@ impl MacAddr {
 
             self.addr[i] += 1;
             break;
+        }
+    }
+}
+
+use std::io::ErrorKind;
+use std::fs::File;
+pub fn create_log_file(name: &str) -> Result<File, CommandResult> {
+    let mut log_iter = 1;
+    loop {
+        match File::create_new(format!("{}-{}.txt", name, log_iter)) {
+            Ok(f) => {
+                return Ok(f);
+            }
+            Err(e) => {
+                if e.kind() == ErrorKind::AlreadyExists {
+                    log_iter += 1;
+                    continue;
+                } else {
+                    return Err(CommandResult::Failure { message: format!("failed to create log file: {}", e) });
+                }
+            }
         }
     }
 }
