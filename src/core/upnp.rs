@@ -7,6 +7,7 @@ use std::net::{TcpListener, TcpStream, UdpSocket};
 use std::thread;
 
 mod search;
+mod dos;
 
 pub fn router() -> CommandRouter {
     let mut upnp_router = CommandRouter::new("upnp");
