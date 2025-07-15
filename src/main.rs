@@ -1,4 +1,6 @@
 use std::io::{stdin, stdout, Write};
+use std::sync::{Arc, Mutex};
+use std::thread;
 
 mod core;
 mod utils;
@@ -22,7 +24,9 @@ fn main() {
     // Managers
 
     let mut job_manager = JobManager::new();
-    let mut upnp_device_manager = upnp::DeviceManager::new();
+    let mut upnp_device_manager = Arc::new(Mutex::new(upnp::DeviceManager::new()));
+
+    // Background processes
 
     // Input Loop
     let mut stdout = stdout();
@@ -78,7 +82,10 @@ fn main() {
             "list" => {
                 match rest.trim() {
                     "jobs" => println!("{}", job_manager.list_current_jobs()),
-                    "upnp" => println!("{}", upnp_device_manager.list_current_devices()),
+                    "upnp" => {
+                        let lock = upnp_device_manager.lock().expect("Critical error when reading from UPnP device list");
+                        println!("{}", lock.list_current_devices());
+                    }
                     "" | "help" => println!(
                         "Shows specific lists\n\
                     Usage: list <list>\n\
