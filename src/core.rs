@@ -1,6 +1,23 @@
-use std::sync::mpsc;
+use std::sync::{mpsc, Arc, Mutex};
 pub mod airplay;
 pub mod upnp;
+use std::collections::HashMap;
+
+/// Used to pass important context and data to commands, especially
+/// commands that start new threads
+pub struct EngineContext {
+    job_manager: JobManager,
+    upnp_device_manager: upnp::DeviceManager,
+}
+
+impl EngineContext {
+    pub fn new() -> Self {
+        Self {
+            job_manager: JobManager::new(),
+            upnp_device_manager: upnp::DeviceManager::new(),
+        }
+    }
+}
 
 pub enum CommandResult {
     Success { message: String },
