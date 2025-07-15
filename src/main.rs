@@ -78,11 +78,13 @@ fn main() {
             "list" => {
                 match rest.trim() {
                     "jobs" => println!("{}", job_manager.list_current_jobs()),
+                    "upnp" => println!("{}", upnp_device_manager.list_current_devices()),
                     "" | "help" => println!(
                         "Shows specific lists\n\
                     Usage: list <list>\n\
                     Possible lists:\n\
-                    - jobs"
+                    - jobs\n\
+                    - upnp"
                     ),
                     _ => eprintln!("{} is not a valid item to list", rest.trim()),
                 }
