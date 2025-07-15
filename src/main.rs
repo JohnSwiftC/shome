@@ -3,7 +3,9 @@ use std::io::{stdin, stdout, Write};
 mod core;
 mod utils;
 
-use core::{Command, CommandResult, CommandRouter, JobManager, Dev};
+use core::{Command, CommandResult, CommandRouter, JobManager, upnp::DeviceManager};
+
+use crate::core::upnp;
 
 fn main() {
     // Routers
@@ -17,9 +19,10 @@ fn main() {
     main_router.register(KillDummy {});
     main_router.register(ListDummy {});
 
-    // Jobs
+    // Managers
 
     let mut job_manager = JobManager::new();
+    let mut upnp_device_manager = upnp::DeviceManager::new();
 
     // Input Loop
     let mut stdout = stdout();

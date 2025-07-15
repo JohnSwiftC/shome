@@ -2,6 +2,7 @@
 
 use crate::CommandRouter;
 use lazyhttp;
+use std::hash::Hash;
 use std::io::Write;
 use std::net::{TcpListener, TcpStream, UdpSocket};
 use std::thread;
@@ -15,6 +16,11 @@ pub struct DeviceManager {
 }
 
 impl DeviceManager {
+    pub fn new() -> Self {
+        Self {
+            devices: HashSet::new()
+        }
+    }
     pub fn list_current_devices(&self) -> String {
         let mut ret = String::new();
 
