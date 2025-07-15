@@ -1,5 +1,6 @@
 use std::io::{stdin, stdout, Write};
 use std::sync::{Arc, Mutex};
+use std::task::Context;
 use std::thread;
 
 mod core;
@@ -7,7 +8,7 @@ mod utils;
 
 use core::{Command, CommandResult, CommandRouter, JobManager, upnp::DeviceManager};
 
-use crate::core::upnp;
+use crate::core::{upnp, EngineContext};
 
 fn main() {
     // Routers
@@ -26,7 +27,10 @@ fn main() {
     let mut job_manager = JobManager::new();
     let mut upnp_device_manager = Arc::new(Mutex::new(upnp::DeviceManager::new()));
 
-    // Background processes
+    // Context TODO: actually use contect managers in list command
+    // TODO: MAKE LIST COMMAND AND KILL REAL COMMANDS
+
+    let context = EngineContext::new();
 
     // Input Loop
     let mut stdout = stdout();
@@ -102,7 +106,7 @@ fn main() {
             _ => (),
         }
 
-        match main_router.parse(&line) {
+        match main_router.parse(&line, &context) {
             Ok(CommandResult::Success { message }) => println!("{}", message),
             Ok(CommandResult::SuccessWithJob { message, job }) => {
                 println!("{}", message);
@@ -118,7 +122,7 @@ fn main() {
 // help menu. These are written manually and work outside the main router
 struct KillDummy {}
 impl Command for KillDummy {
-    fn run(&self, _input: &str) -> Result<CommandResult, CommandResult> {
+    fn run(&self, _input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
         Err(CommandResult::Failure {
             message: "internal error, kill should not be ran with a router".to_owned(),
         })
@@ -134,7 +138,7 @@ impl Command for KillDummy {
 
 struct ListDummy {}
 impl Command for ListDummy {
-    fn run(&self, _input: &str) -> Result<CommandResult, CommandResult> {
+    fn run(&self, _input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
         Err(CommandResult::Failure {
             message: "internal error, kill should not be ran with a router".to_owned(),
         })

@@ -25,7 +25,7 @@ pub enum CommandResult {
     Failure { message: String },
 }
 pub trait Command {
-    fn process(&self, input: &str) -> Result<CommandResult, CommandResult> {
+    fn process(&self, input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
         match input {
             "help" => {
                 return Ok(CommandResult::Success {
@@ -35,9 +35,9 @@ pub trait Command {
             &_ => (),
         }
 
-        self.run(input)
+        self.run(input, context)
     }
-    fn run(&self, input: &str) -> Result<CommandResult, CommandResult>;
+    fn run(&self, input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult>;
     fn info(&self) -> &str;
     fn name(&self) -> &str;
 }
@@ -75,7 +75,7 @@ impl CommandRouter {
         self.info = info;
     }
 
-    pub fn parse(&self, input: &str) -> Result<CommandResult, CommandResult> {
+    pub fn parse(&self, input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
         let input = input.trim();
 
         if input == "" {
@@ -102,13 +102,13 @@ impl CommandRouter {
 
         for command in &self.commands {
             if command.name() == first {
-                return command.process(rest);
+                return command.process(rest, context);
             }
         }
 
         for router in &self.routers {
             if router.name() == first {
-                return router.parse(rest);
+                return router.parse(rest, context);
             }
         }
 

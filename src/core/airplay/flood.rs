@@ -5,6 +5,7 @@ use std::time::Duration;
 use local_ip_address::local_ip;
 
 use super::register_airplay_device;
+use crate::core::EngineContext;
 use crate::{core::Job, utils, Command, CommandResult};
 
 pub fn airplay_device_flood(
@@ -91,7 +92,7 @@ impl Command for AirplayFlood {
         -n or --name <string> : name of devices (default: airplay)"
     }
 
-    fn run(&self, input: &str) -> Result<CommandResult, CommandResult> {
+    fn run(&self, input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
         let mut args = input.split_whitespace();
         let mut amount: usize = 10;
         let mut name: String = String::from("airplay");

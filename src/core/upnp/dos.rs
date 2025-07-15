@@ -1,4 +1,4 @@
-use crate::{core::Job, utils, Command, CommandResult};
+use crate::{core::{EngineContext, Job}, utils, Command, CommandResult};
 
 struct UPnPDos {}
 impl Command for UPnPDos {
@@ -10,7 +10,7 @@ impl Command for UPnPDos {
         "DoS based on the SSDP Search protocol"
     }
 
-    fn run(&self, input: &str) -> Result<CommandResult, CommandResult> {
+    fn run(&self, input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
         Ok(CommandResult::Success { message: "".to_owned() })
     }
 }

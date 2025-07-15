@@ -5,7 +5,7 @@ use std::thread;
 
 use std::net::UdpSocket;
 
-use crate::{core::Job, utils, Command, CommandResult};
+use crate::{core::{EngineContext, Job}, utils, Command, CommandResult};
 use utils::create_log_file;
 
 fn read_ssdp_to_log(file: &mut File, socket: &mut UdpSocket) {
@@ -36,7 +36,7 @@ impl Command for UPnPSearch {
         -o or --output <string> : name of log file (default: shomelog-#.txt)"
     }
 
-    fn run(&self, input: &str) -> Result<CommandResult, CommandResult> {
+    fn run(&self, input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
         let mut args = input.split_whitespace();
         let mut log_file_name = "shomelog";
         let mut log_file: File;
