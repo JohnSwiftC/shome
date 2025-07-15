@@ -15,7 +15,7 @@ pub struct DeviceList {
 }
 
 impl DeviceList {
-    pub fn list_current_jobs(&self) -> String {
+    pub fn list_current_devices(&self) -> String {
         let mut ret = String::new();
 
         for j in self.devices.iter() {
