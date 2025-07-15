@@ -9,6 +9,40 @@ use std::thread;
 mod search;
 mod dos;
 
+use std::collections::HashSet;
+pub struct DeviceList {
+    devices: HashSet<UPnPFriendlyIP>,
+}
+
+impl DeviceList {
+    pub fn list_current_jobs(&self) -> String {
+        let mut ret = String::new();
+
+        for j in self.devices.iter() {
+            ret.push_str(&j.to_string());
+        }
+
+        ret
+    }
+
+    pub fn insert(&mut self, device: UPnPFriendlyIP) {
+        let _ = self.devices.insert(device);
+    }
+}
+
+use std::net::IpAddr;
+#[derive(Hash, PartialEq, Eq)]
+pub struct UPnPFriendlyIP {
+    ip: IpAddr,
+    name: String,
+}
+
+impl ToString for UPnPFriendlyIP {
+    fn to_string(&self) -> String {
+        format!("({}) > {}", self.ip, self.name)
+    }
+}
+
 pub fn router() -> CommandRouter {
     let mut upnp_router = CommandRouter::new("upnp");
     upnp_router.set_info("A module for interacting with and as UPnP devices.");
