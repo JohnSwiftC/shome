@@ -10,11 +10,11 @@ mod search;
 mod dos;
 
 use std::collections::HashSet;
-pub struct DeviceList {
+pub struct DeviceManager {
     devices: HashSet<UPnPFriendlyIP>,
 }
 
-impl DeviceList {
+impl DeviceManager {
     pub fn list_current_devices(&self) -> String {
         let mut ret = String::new();
 

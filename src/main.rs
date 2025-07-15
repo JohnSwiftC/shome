@@ -3,7 +3,7 @@ use std::io::{stdin, stdout, Write};
 mod core;
 mod utils;
 
-use core::{Command, CommandResult, CommandRouter, JobManager};
+use core::{Command, CommandResult, CommandRouter, JobManager, Dev};
 
 fn main() {
     // Routers
