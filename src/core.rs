@@ -173,7 +173,7 @@ impl JobManager {
         let mut ret = String::new();
 
         for (i, j) in self.jobs.iter().enumerate() {
-            ret.push_str(&format!("({}) > {}", i, j.name))
+            ret.push_str(&format!("({}) > {}\n", i, j.name))
         }
 
         ret
