@@ -65,6 +65,12 @@ impl Command for UPnPSearch {
         }
 
         log_file = create_log_file(log_file_name)?;
+        let upnp_manager_arc = context.upnp_device_manager.clone();
+
+        // TODO, rewrite the actual functionality here, add flag for optional
+        // log file, ensure killing this job goes smoothly
+        // create shared sockets in the context to prevent the double opening
+        // error
 
         let mut socket = UdpSocket::bind("0.0.0.0:1900").map_err(|e| CommandResult::Failure {
             message: "udp socket already open at port 1900, consider killing related upnp jobs"
