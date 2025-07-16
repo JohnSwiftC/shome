@@ -19,13 +19,6 @@ fn main() {
 
     main_router.register_router(core::airplay::router());
     main_router.register_router(core::upnp::router());
-    main_router.register(KillDummy {});
-    main_router.register(ListDummy {});
-
-    // Managers
-
-    let mut job_manager = JobManager::new();
-    let mut upnp_device_manager = Arc::new(Mutex::new(upnp::DeviceManager::new()));
 
     // Context TODO: actually use contect managers in list command
     // TODO: MAKE LIST COMMAND AND KILL REAL COMMANDS
@@ -46,104 +39,11 @@ fn main() {
             .read_line(&mut line)
             .expect("failed to read from stdin, panic now");
 
-        // Special commands that interact with structures in main
-        // i dont think a framework for this is important because of the very
-        // specific things that these commands do and that functionality
-        // shouldnt be needed for normal commands
-        let (first, rest) = match line.split_once(" ") {
-            Some((first, rest)) => (first, rest),
-            None => (line.as_str(), ""),
-        };
-
-        match first.trim() {
-            "kill" => {
-                if rest.trim() == "help" {
-                    println!(
-                        "Used to kill a currently running job\n\
-                    run 'list jobs' to get the indexes of currently running jobs\n\
-                    Usage:\nkill <index>"
-                    );
-                    continue;
-                }
-
-                let index = match rest.trim().parse::<usize>() {
-                    Ok(i) => i,
-                    Err(_) => {
-                        println!("ERROR: kill takes a non-negative integer as an argument");
-                        continue;
-                    }
-                };
-
-                match job_manager.kill(index) {
-                    Ok(CommandResult::Success { message }) => println!("{}", message),
-                    Err(CommandResult::Failure { message }) => eprintln!("ERROR: {}", message),
-                    _ => (),
-                }
-
-                continue;
-            }
-
-            "list" => {
-                match rest.trim() {
-                    "jobs" => println!("{}", job_manager.list_current_jobs()),
-                    "upnp" => {
-                        let lock = upnp_device_manager.lock().expect("Critical error when reading from UPnP device list");
-                        println!("{}", lock.list_current_devices());
-                    }
-                    "" | "help" => println!(
-                        "Shows specific lists\n\
-                    Usage: list <list>\n\
-                    Possible lists:\n\
-                    - jobs\n\
-                    - upnp"
-                    ),
-                    _ => eprintln!("{} is not a valid item to list", rest.trim()),
-                }
-
-                continue;
-            }
-
-            _ => (),
-        }
 
         match main_router.parse(&line, &context) {
             Ok(CommandResult::Success { message }) => println!("{}", message),
             Err(CommandResult::Failure { message }) => eprintln!("ERROR: {}", message),
             _ => (),
         }
-    }
-}
-
-// These two commands do nothing except ensure that the names show up in the main router's
-// help menu. These are written manually and work outside the main router
-struct KillDummy {}
-impl Command for KillDummy {
-    fn run(&self, _input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
-        Err(CommandResult::Failure {
-            message: "internal error, kill should not be ran with a router".to_owned(),
-        })
-    }
-
-    fn info(&self) -> &str {
-        ""
-    }
-    fn name(&self) -> &str {
-        "kill"
-    }
-}
-
-struct ListDummy {}
-impl Command for ListDummy {
-    fn run(&self, _input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
-        Err(CommandResult::Failure {
-            message: "internal error, kill should not be ran with a router".to_owned(),
-        })
-    }
-
-    fn info(&self) -> &str {
-        ""
-    }
-    fn name(&self) -> &str {
-        "list"
     }
 }
