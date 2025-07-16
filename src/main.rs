@@ -19,6 +19,8 @@ fn main() {
 
     main_router.register_router(core::airplay::router());
     main_router.register_router(core::upnp::router());
+    main_router.register(List {});
+    main_router.register(Kill {});
 
     // Context TODO: actually use contect managers in list command
     // TODO: MAKE LIST COMMAND AND KILL REAL COMMANDS
@@ -45,5 +47,65 @@ fn main() {
             Err(CommandResult::Failure { message }) => eprintln!("ERROR: {}", message),
             _ => (),
         }
+    }
+}
+
+struct List {}
+
+impl Command for List {
+    fn name(&self) -> &str {
+        "list"
+    }
+
+    fn info(&self) -> &str {
+        "used to list out specific internal lists, like jobs\n\
+        Possible lists:\n\
+        jobs\n\
+        upnp\n\
+        Usage:\n\
+        list <list> : returns a formated string of the list"
+    }
+    
+    fn run(&self, input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
+        match input.trim() {
+            "jobs" => {
+                let lock = context.job_manager.lock().expect("Failed to lock job manager, quitting...");
+                return Ok(
+                    CommandResult::Success { message: lock.list_current_jobs() }
+                )
+            }
+            "upnp" => {
+                let lock = context.upnp_device_manager.lock().expect("Failed to lock UPnP device manager, quitting...");
+                return Ok(
+                    CommandResult::Success { message: lock.list_current_devices() }
+                )
+            }
+            bad_in => {
+                return Err(CommandResult::Failure { message: format!("{} is not a valid list", bad_in) })
+            }
+        }
+    }
+}
+
+struct Kill {}
+impl Command for Kill {
+    fn name(&self) -> &str {
+        "kill"
+    }
+
+    fn info(&self) -> &str {
+        "Used to kill a currently running job, based on index.\n\
+        Use 'list jobs' to see a list of currently running jobs.\n\
+        Usage:\n\
+        kill <index> : kills the job at index"
+    }
+
+    fn run(&self, input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
+        let index: usize = input.trim().parse().map_err(|e| {
+            CommandResult::Failure { message: format!("not a valid integer: {}", e) }
+        })?;
+
+        let mut lock = context.job_manager.lock().expect("failed to lock job manager, quitting...");
+        lock.kill(index)
     }
 }
