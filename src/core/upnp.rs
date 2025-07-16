@@ -7,8 +7,8 @@ use std::io::Write;
 use std::net::{TcpListener, TcpStream, UdpSocket};
 use std::thread;
 
-mod search;
 mod dos;
+mod search;
 
 use std::collections::HashSet;
 pub struct DeviceManager {
@@ -18,7 +18,7 @@ pub struct DeviceManager {
 impl DeviceManager {
     pub fn new() -> Self {
         Self {
-            devices: HashSet::new()
+            devices: HashSet::new(),
         }
     }
     pub fn list_current_devices(&self) -> String {

@@ -138,7 +138,10 @@ impl Command for AirplayFlood {
         });
 
         {
-            let mut lock = context.job_manager.lock().expect("Failed to lock job-manager, quitting...");
+            let mut lock = context
+                .job_manager
+                .lock()
+                .expect("Failed to lock job-manager, quitting...");
             lock.insert(Job {
                 name: "airplay-flood".to_owned(),
                 sender: sender,

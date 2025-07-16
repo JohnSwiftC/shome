@@ -6,7 +6,7 @@ use std::thread;
 mod core;
 mod utils;
 
-use core::{Command, CommandResult, CommandRouter, JobManager, upnp::DeviceManager};
+use core::{upnp::DeviceManager, Command, CommandResult, CommandRouter, JobManager};
 
 use crate::core::{upnp, EngineContext};
 
@@ -21,9 +21,6 @@ fn main() {
     main_router.register_router(core::upnp::router());
     main_router.register(List {});
     main_router.register(Kill {});
-
-    // Context TODO: actually use contect managers in list command
-    // TODO: MAKE LIST COMMAND AND KILL REAL COMMANDS
 
     let context = EngineContext::new();
 
@@ -40,7 +37,6 @@ fn main() {
         stdin
             .read_line(&mut line)
             .expect("failed to read from stdin, panic now");
-
 
         match main_router.parse(&line, &context) {
             Ok(CommandResult::Success { message }) => println!("{}", message),
@@ -65,23 +61,31 @@ impl Command for List {
         Usage:\n\
         list <list> : returns a formated string of the list"
     }
-    
+
     fn run(&self, input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
         match input.trim() {
             "jobs" => {
-                let lock = context.job_manager.lock().expect("Failed to lock job manager, quitting...");
-                return Ok(
-                    CommandResult::Success { message: lock.list_current_jobs() }
-                )
+                let lock = context
+                    .job_manager
+                    .lock()
+                    .expect("Failed to lock job manager, quitting...");
+                return Ok(CommandResult::Success {
+                    message: lock.list_current_jobs(),
+                });
             }
             "upnp" => {
-                let lock = context.upnp_device_manager.lock().expect("Failed to lock UPnP device manager, quitting...");
-                return Ok(
-                    CommandResult::Success { message: lock.list_current_devices() }
-                )
+                let lock = context
+                    .upnp_device_manager
+                    .lock()
+                    .expect("Failed to lock UPnP device manager, quitting...");
+                return Ok(CommandResult::Success {
+                    message: lock.list_current_devices(),
+                });
             }
             bad_in => {
-                return Err(CommandResult::Failure { message: format!("{} is not a valid list", bad_in) })
+                return Err(CommandResult::Failure {
+                    message: format!("{} is not a valid list", bad_in),
+                })
             }
         }
     }
@@ -101,11 +105,14 @@ impl Command for Kill {
     }
 
     fn run(&self, input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
-        let index: usize = input.trim().parse().map_err(|e| {
-            CommandResult::Failure { message: format!("not a valid integer: {}", e) }
+        let index: usize = input.trim().parse().map_err(|e| CommandResult::Failure {
+            message: format!("not a valid integer: {}", e),
         })?;
 
-        let mut lock = context.job_manager.lock().expect("failed to lock job manager, quitting...");
+        let mut lock = context
+            .job_manager
+            .lock()
+            .expect("failed to lock job manager, quitting...");
         lock.kill(index)
     }
 }

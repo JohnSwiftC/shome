@@ -5,7 +5,10 @@ use std::thread;
 
 use std::net::UdpSocket;
 
-use crate::{core::{EngineContext, Job}, utils, Command, CommandResult};
+use crate::{
+    core::{EngineContext, Job},
+    utils, Command, CommandResult,
+};
 use utils::create_log_file;
 
 fn read_ssdp_to_log(file: &mut File, socket: &mut UdpSocket) {
@@ -79,7 +82,10 @@ impl Command for UPnPSearch {
         });
 
         {
-            let mut lock = context.job_manager.lock().expect("Failure when locking job manager, quitting...");
+            let mut lock = context
+                .job_manager
+                .lock()
+                .expect("Failure when locking job manager, quitting...");
             let job = Job {
                 name: "upnp-search".to_owned(),
                 sender: sender,

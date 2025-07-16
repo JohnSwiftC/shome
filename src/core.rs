@@ -25,7 +25,11 @@ pub enum CommandResult {
     Failure { message: String },
 }
 pub trait Command {
-    fn process(&self, input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
+    fn process(
+        &self,
+        input: &str,
+        context: &EngineContext,
+    ) -> Result<CommandResult, CommandResult> {
         match input {
             "help" => {
                 return Ok(CommandResult::Success {
@@ -75,7 +79,11 @@ impl CommandRouter {
         self.info = info;
     }
 
-    pub fn parse(&self, input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
+    pub fn parse(
+        &self,
+        input: &str,
+        context: &EngineContext,
+    ) -> Result<CommandResult, CommandResult> {
         let input = input.trim();
 
         if input == "" {

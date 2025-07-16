@@ -1,4 +1,7 @@
-use crate::{core::{EngineContext, Job}, utils, Command, CommandResult};
+use crate::{
+    core::{EngineContext, Job},
+    utils, Command, CommandResult,
+};
 
 struct UPnPDos {}
 impl Command for UPnPDos {
@@ -11,6 +14,8 @@ impl Command for UPnPDos {
     }
 
     fn run(&self, input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
-        Ok(CommandResult::Success { message: "".to_owned() })
+        Ok(CommandResult::Success {
+            message: "".to_owned(),
+        })
     }
 }
