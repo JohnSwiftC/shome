@@ -108,10 +108,6 @@ fn main() {
 
         match main_router.parse(&line, &context) {
             Ok(CommandResult::Success { message }) => println!("{}", message),
-            Ok(CommandResult::SuccessWithJob { message, job }) => {
-                println!("{}", message);
-                job_manager.insert(job);
-            }
             Err(CommandResult::Failure { message }) => eprintln!("ERROR: {}", message),
             _ => (),
         }

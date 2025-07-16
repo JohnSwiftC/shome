@@ -6,8 +6,8 @@ use std::collections::HashMap;
 /// Used to pass important context and data to commands, especially
 /// commands that start new threads
 pub struct EngineContext {
-    job_manager: Arc<Mutex<JobManager>>,
-    upnp_device_manager: Arc<Mutex<upnp::DeviceManager>>,
+    pub job_manager: Arc<Mutex<JobManager>>,
+    pub upnp_device_manager: Arc<Mutex<upnp::DeviceManager>>,
 }
 
 impl EngineContext {

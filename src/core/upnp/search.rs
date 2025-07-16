@@ -78,12 +78,17 @@ impl Command for UPnPSearch {
             }
         });
 
-        Ok(CommandResult::SuccessWithJob {
-            message: "UPnP search job created!".to_owned(),
-            job: Job {
+        {
+            let mut lock = context.job_manager.lock().expect("Failure when locking job manager, quitting...");
+            let job = Job {
                 name: "upnp-search".to_owned(),
                 sender: sender,
-            },
+            };
+            lock.insert(job);
+        }
+
+        Ok(CommandResult::Success {
+            message: "UPnP search job created!".to_owned(),
         })
     }
 }
