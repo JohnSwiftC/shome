@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::thread;
 
 mod flood;
+mod search;
 
 // The game plan for modules is to create a function for each module router that
 // creates the router with all the submodules and commands pre-loaded
