@@ -10,7 +10,9 @@ impl Command for UPnPStress {
     }
 
     fn info(&self) -> &str {
-        "DoS based on the SSDP Search protocol"
+        "Stress testing based on the SSDP Search protocol\n\
+        Flags:\n\
+        -i or --index <index> (required) : device to target, from 'list upnp'"
     }
 
     fn run(&self, input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
