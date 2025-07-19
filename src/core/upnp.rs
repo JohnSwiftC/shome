@@ -7,7 +7,7 @@ use std::io::Write;
 use std::net::{TcpListener, TcpStream, UdpSocket};
 use std::thread;
 
-mod dos;
+mod stress;
 mod search;
 
 use std::collections::HashSet;

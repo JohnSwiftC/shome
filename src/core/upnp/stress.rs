@@ -3,8 +3,8 @@ use crate::{
     utils, Command, CommandResult,
 };
 
-struct UPnPDos {}
-impl Command for UPnPDos {
+struct UPnPStress {}
+impl Command for UPnPStress {
     fn name(&self) -> &str {
         "dos"
     }
