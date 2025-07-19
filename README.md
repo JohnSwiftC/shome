@@ -8,6 +8,7 @@ Built modularly, encourages the addition of custom commands and modules.
 
 - Easy command line interface
 - AirPlay device creation, flooding, and an AirPlay server
+- UPnP device discovery
 
 # Future Features
 
@@ -15,7 +16,6 @@ Built modularly, encourages the addition of custom commands and modules.
 
 - A stronger and more configurable AirPlay server
 
-- UPnP device discovery
 - Act as a UPnP device
 - Super niche UPnP man-in-the-middle
 - Known UPnP DoS exploit
