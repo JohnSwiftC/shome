@@ -1,14 +1,11 @@
 use std::io::{stdin, stdout, Write};
-use std::sync::{Arc, Mutex};
-use std::task::Context;
-use std::thread;
 
 mod core;
 mod utils;
 
-use core::{upnp::DeviceManager, Command, CommandResult, CommandRouter, JobManager};
+use core::{Command, CommandResult, CommandRouter};
 
-use crate::core::{upnp, EngineContext};
+use crate::core::{EngineContext};
 
 fn main() {
     // Routers
