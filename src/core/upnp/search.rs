@@ -1,13 +1,13 @@
 use std::fs::File;
 use std::io::Write;
-use std::sync::{mpsc, Arc, Mutex};
+use std::sync::{mpsc};
 use std::thread;
 
 use std::net::UdpSocket;
 
 use crate::core::upnp::UPnPFriendlyIP;
 use crate::{
-    core::{upnp::DeviceManager, EngineContext, Job},
+    core::{EngineContext, Job},
     utils, Command, CommandResult,
 };
 use utils::create_log_file;
@@ -28,7 +28,7 @@ impl Command for UPnPSearch {
     fn run(&self, input: &str, context: &EngineContext) -> Result<CommandResult, CommandResult> {
         let mut args = input.split_whitespace();
         let mut log_file_name = None;
-        let mut log_file: Option<File>;
+        let log_file: Option<File>;
 
         while let Some(curr) = args.next() {
             match curr {
@@ -57,7 +57,7 @@ impl Command for UPnPSearch {
 
         let upnp_manager_arc = context.upnp_device_manager.clone();
 
-        let socket = UdpSocket::bind("0.0.0.0:1900").map_err(|e| CommandResult::Failure {
+        let socket = UdpSocket::bind("0.0.0.0:1900").map_err(|_| CommandResult::Failure {
             message: "udp socket already open at port 1900, consider killing related upnp jobs"
                 .to_owned(),
         })?;
@@ -71,7 +71,7 @@ impl Command for UPnPSearch {
                 let mut buf = vec![0; 4096];
                 let (bytes, sender) = match socket.recv_from(&mut buf) {
                     Ok((bytes, sender)) => (bytes, sender),
-                    Err(e) => {
+                    Err(_) => {
                         eprintln!("ERROR: failed to read from udp socket, consider kill upnp-search job");
                         return;
                     }
@@ -79,7 +79,7 @@ impl Command for UPnPSearch {
                 let bufstr = String::from_utf8_lossy(&buf[..bytes]);
 
                 if let Some(ref mut f) = log_file {
-                    if let Err(e) = write!(f, "Packet from {}\n{}", sender, bufstr) {
+                    if let Err(_) = write!(f, "Packet from {}\n{}", sender, bufstr) {
                         eprintln!("ERROR: failed to write to log file, consider killing upnp-search job");
                     }
                 }
